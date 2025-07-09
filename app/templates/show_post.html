@@ -1,0 +1,228 @@
+<!-- profile.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>게시글 목록</title>
+</head>
+ <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align:center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 170px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .link {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .link a:hover {
+            text-decoration: underline;
+        }
+
+        .post-card {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            text-align: left;
+        }
+
+        .post-card h3 {
+            margin-top: 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .post-card p {
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 0;
+        }
+
+        #pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px; /* 버튼 사이 간격 */
+    margin-top: 30px;
+    margin-bottom: 20px;
+}
+
+#pagination button {
+    min-width: 30px;
+    height: 30px;
+    padding: 0 10px;
+    border: 1px solid #007bff;  /* 기본 테두리를 파란색으로 */
+    border-radius: 4px;
+    background-color: #007bff;  /* 기본 배경도 파란색 */
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 30px;
+    user-select: none;
+    color: white;               /* 기본 글자색은 흰색 */
+    transition: background-color 0.3s, color 0.3s;
+}
+
+#pagination button:hover:not(:disabled) {
+    background-color: #0056b3;  /* 호버 시 더 진한 파란색 */
+    border-color: #0056b3;
+    color: white;
+}
+
+#pagination button:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+    background-color: #cccccc;
+    border-color: #cccccc;
+    color: #666666;
+}
+
+
+    </style>
+<body onload="showPost()">
+        <div class="container">
+            <h1>게시글 목록</h1>
+            <div id = "postsContainer"></div>
+            <div id="pagination" style="margin-top: 30px; margin-bottom: 20px;"></div>
+            <!-- <div class="form-group">
+                <label for="title">글 제목</label>
+                <input id="title" type="text" placeholder="글 제목을 입력하세요">
+           
+                <label for="content" style="margin-top: 30px;">글 내용</label>
+                <input id="content" type="text" style="width: 100%; height: 200px;" placeholder="글 내용을 입력하세요">
+            </div>
+            <button  onclick="writePost()">글 작성</button> -->
+            <button onclick="window.location.href='/users/all/'"  style="font-weight: bold;">회원 목록 페이지로 이동</button>
+        </div>
+       
+    
+    <script>
+        // 페이지 상태 변수 저장 용
+        let currentPage = 1;
+        const pageSize = 10;    
+        let totalPages = 1;
+
+        async function showPost(page = 1) {
+         const userId = "{{ user_id }}";
+            // const page = 1;
+            // const size = 10;
+            currentPage = page;  // 현재 페이지 갱신
+
+            const response = await fetch(`/posts/user/${userId}?page=${page}&size=${pageSize}`);
+            if (response.ok) {
+                const data = await response.json();
+                const posts = data.posts;
+                const total = data.total;
+                const container = document.getElementById('postsContainer');
+                container.innerHTML = ''; // 초기화
+
+                 if (posts.length === 0) {
+                container.innerHTML = '<p>내용 없음</p>';
+                document.getElementById('pagination').innerHTML = '';
+                return;
+            }
+
+            totalPages = Math.ceil(total / pageSize);
+
+             posts.forEach(post => {
+                const div = document.createElement('div');
+                div.classList.add("post-card");
+                div.innerHTML = `<h3>${post.title}</h3><p>${post.content || '내용 없음'}</p>`;
+                container.appendChild(div);
+            });
+
+             // 페이지네이션 UI 생성 함수 호출
+            renderPagination();
+
+            } else {
+                alert('게시글을 불러오는데 실패했습니다.');
+            }
+        }
+
+
+        
+       function renderPagination() {
+                const pagination = document.getElementById('pagination');
+                pagination.innerHTML = '';
+
+                // 이전 버튼
+                const prevBtn = document.createElement('button');
+                prevBtn.innerText = '<';
+                prevBtn.disabled = (currentPage === 1);
+                prevBtn.onclick = () => showPost(currentPage - 1);
+                pagination.appendChild(prevBtn);
+
+                // 숫자 버튼
+                for (let i = 1; i <= totalPages; i++) {
+                    const btn = document.createElement('button');
+                    btn.innerText = i;
+                    if (i === currentPage) {
+                        btn.style.fontWeight = 'bold';
+                        btn.style.backgroundColor = '#0056b3';
+                        btn.style.color = 'white';
+                    }
+                    btn.onclick = () => showPost(i);
+                    pagination.appendChild(btn);
+                }
+
+                // 다음 버튼
+                const nextBtn = document.createElement('button');
+                nextBtn.innerText = '>';
+                nextBtn.disabled = (currentPage === totalPages);
+                nextBtn.onclick = () => showPost(currentPage + 1);
+                pagination.appendChild(nextBtn);
+            }
+
+
+    </script>
+</body>
+</html>
+
+       

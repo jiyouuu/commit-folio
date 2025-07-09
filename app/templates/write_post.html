@@ -1,0 +1,110 @@
+<!-- profile.html -->
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <title>게시글 작성</title>
+</head>
+ <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+            text-align: center;
+        }
+        .form-group {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
+            text-align:center;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            width: 80px;
+            padding: 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .link {
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .link a {
+            color: #007bff;
+            text-decoration: none;
+        }
+        .link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+<body>
+        <div class="container">
+            <h1>글 작성하기</h1>
+            <div class="form-group">
+                <label for="title">글 제목</label>
+                <input id="title" type="text" placeholder="글 제목을 입력하세요">
+           
+                <label for="content" style="margin-top: 30px;">글 내용</label>
+                <input id="content" type="text" style="width: 100%; height: 200px;" placeholder="글 내용을 입력하세요">
+            </div>
+            <button  onclick="writePost()">글 작성</button>
+            <p class="link"><a href="/users/all/">돌아가기</a></p>
+        </div>
+       
+    
+    <script>
+        async function writePost() {
+         const userId = "{{ user_id }}";
+         console.log(userId)
+         const title = document.getElementById('title').value;
+         const content = document.getElementById('content').value;
+         if (!title || !content) {
+                            alert('모든 필드를 입력하세요.');
+                            return;
+                        }
+         const response = await fetch(`/write/post/${userId}`,{
+            method:'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ 'title':title,'content': content })
+         });
+         if(response.ok){
+            alert('글 등록 성공!');
+            window.location.href = '/users/all/'; 
+         }
+         else{
+            const error = await response.json();
+            alert(`글 등록 실패: ${error.detail}`);
+         }
+        }
+    </script>
+</body>
+</html>
+
+       

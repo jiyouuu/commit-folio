@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>회원 리스트</title>
+</head>
+<style>
+   body {
+    margin: 0;
+    background-color: #f0f2f5;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: #333;
+}
+
+.container {
+    max-width: 900px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+h1 {
+    text-align: center;
+    font-size: 28px;
+    margin-bottom: 24px;
+    color: #222;
+}
+
+table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th, td {
+    padding: 10px 8px;
+    text-align: center;
+}
+
+th {
+    background-color: #4a90e2;
+    color: white;
+    font-weight: 600;
+    user-select: none;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+tbody tr:hover {
+    background-color: #e6f0ff;
+}
+
+button {
+    padding: 6px 12px;
+    background-color: #4a90e2;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+button:hover {
+    background-color: #357ABD;
+}
+
+button:active {
+    background-color: #2c5fa4;
+}
+
+button + button {
+    margin-left: 8px; /* 버튼 간격 */
+}
+
+</style>
+<body>
+    <div class = "container"> 
+        <h1>회원 리스트 </h1>
+            <table border = "1" width="100%" >
+                    <tr>
+                        <th>아이디</th>
+                        <th>이름</th>
+                        <th> 이메일</th>
+                        <th> 수정</th>
+                        <!-- <th> 수정<button onclick = "javascript:location.href= '/users/'">회원추가</button></th> -->
+                        <th> 삭제</th>
+                        <th> 글 작성</th>
+                        <th> 작성 글 보러가기</th>
+                    </tr>
+
+                    {% if users %}
+                        {% for user in users %}
+                    <tr> 
+                        <td>{{user.id}}</td>
+                        <td><a href="/profiles/view/{{user.id}}">{{user.username}}</a></td>
+                        <td>{{user.email}}</td>
+                        <td><button style = 'margin-left:10px;' onclick="editUser('{{ user.id }}')">회원 수정</button></td>
+                        <td><button style = 'margin-left:10px;' onclick="deleteUser('{{ user.id }}')">회원 삭제</button></td>
+                        <td><button style = 'margin-left:10px;' onclick="writePost('{{ user.id }}')">글 작성</button></td>
+                        <td><button style = 'margin-left:10px;' onclick="showPost('{{ user.id }}')">작성 글 보러가기</button></td>
+                        
+                    </tr>                                                   
+                        {% endfor %}
+                    {% endif %}
+                </table>
+    </div>
+    
+
+    <script>
+
+        async function editUser(userId) {
+        window.location.href = `/edit/profile/${userId}`;  // 예: 수정 페이지로 이동
+         }
+
+
+        async function deleteUser(userId) {
+            if(confirm(`진짜 ${userId} 아이디를 삭제하시겠습니까?`)){
+                fetch(`/users/${userId}`,{
+                    method:'DELETE',
+                }).then(res =>{
+                    if(res.ok){
+                        alert('삭제 완료');
+                        location.reload();
+                    }
+                    else{
+                        alert('삭제 실패')
+                    }
+                });
+            }
+     
+            
+        }
+
+        async function writePost(userId){
+             window.location.href = `/write/post/${userId}`;  // 예: 글쓰기 페이지로 이동
+        }
+
+
+        async function showPost(userId){
+             window.location.href = `/show/post/${userId}`;  // 예: 글쓰기 페이지로 이동
+        }
+    </script>
+</body>
+</html>
